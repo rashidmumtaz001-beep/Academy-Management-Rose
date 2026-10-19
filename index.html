@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academy OS - Bright Future Academy</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#ebf5ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 3px;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                color: black;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 flex h-screen overflow-hidden">
+
+    <!-- PIN Lock Overlay -->
+    <div id="pin-lock-screen" class="fixed inset-0 z-50 bg-slate-900 bg-opacity-95 backdrop-blur flex flex-col items-center justify-center hidden">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-slate-200 dark:border-slate-700">
+            <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-1 dark:text-white" id="app-title-lock">Bright Future Academy</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Enter system PIN to unlock dashboard</p>
+            <input type="password" id="pin-input" maxlength="6" placeholder="PIN Code" class="w-full text-center text-2xl tracking-widest px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-600 outline-none bg-slate-50 dark:bg-slate-900 dark:text-white">
+            <button onclick="unlockSystem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-200 dark:shadow-none">
+                Unlock System
+            </button>
+            <p id="pin-error" class="text-xs text-red-500 mt-3 hidden">Invalid PIN Code. Try again.</p>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 fixed md:relative z-30 h-full transition-all duration-300 -translate-x-full md:translate-x-0">
+        <!-- Logo Header -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
+            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-900/50">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="overflow-hidden">
+                <h1 id="brand-name" class="font-bold text-white text-sm leading-tight truncate">Bright Future</h1>
+                <p class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Academy OS</p>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1" id="sidebar-menu">
+            <!-- Dynamic menu items will be rendered here -->
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <span>Academy OS v2.5</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-900">
+        <!-- Top Navbar -->
+        <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between px-4 md:px-6 z-10">
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 p-2 rounded-lg">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                
+                <!-- Global Search -->
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="global-search" onkeyup="handleGlobalSearch(event)" placeholder="Search students, fees, staff..." class="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-700/50 rounded-xl text-xs md:text-sm border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition text-slate-800 dark:text-slate-100">
+                    <div id="search-results" class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-80 overflow-y-auto z-50 p-2"></div>
+                </div>
+            </div>
+
+            <!-- Top Controls -->
+            <div class="flex items-center gap-2">
+                <button onclick="undoLastAction()" title="Undo Action" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700 transition">
+                    <i class="fa-solid fa-rotate-left text-sm"></i>
+                </button>
+                <button onclick="toggleLanguage()" title="Language Switcher" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700 transition">
+                    <i class="fa-solid fa-globe text-sm"></i>
+                </button>
+                <button onclick="toggleDarkMode()" title="Toggle Dark/Light Mode" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700 transition">
+                    <i class="fa-solid fa-moon text-sm dark:hidden"></i>
+                    <i class="fa-solid fa-sun text-sm hidden dark:block text-amber-400"></i>
+                </button>
+                <button onclick="lockSystem()" title="Lock Screen" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700 transition">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Page Container -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6" id="page-content">
+            <!-- Dynamic page views populate here -->
+        </main>
+    </div>
+
+    <!-- Generic Modal Dialog Container -->
+    <div id="modal-container" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <h3 id="modal-title" class="font-bold text-lg text-slate-800 dark:text-white">Modal Header</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 overflow-y-auto flex-1">
+                <!-- Modal forms render here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Target Container -->
+    <div id="printable-area" class="hidden"></div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        /**
+         * ACADEMY OS - CORE APPLICATION LOGIC
+         * Vanilla JavaScript single-file application engine
+         */
+
+        // Initial Seed Demo Data
+        const defaultData = {
+            students: [
+                { id: "STU-001", name: "Ali Raza", fatherName: "Muhammad Raza", phone: "03001234567", parentPhone: "03009876543", address: "Khanewal Road, Multan", batchId: "BAT-001", admissionDate: "2026-01-10", monthlyFee: 8000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-002", name: "Ayesha Siddiqui", fatherName: "Tariq Siddiqui", phone: "03012345678", parentPhone: "03019876543", address: "Gulgasht Colony, Multan", batchId: "BAT-003", admissionDate: "2026-01-12", monthlyFee: 12000, discount: 1000, status: "Active", photo: "" },
+                { id: "STU-003", name: "Hassan Ahmed", fatherName: "Shabeer Ahmed", phone: "03023456789", parentPhone: "03029876543", address: "Cantt Area, Multan", batchId: "BAT-003", admissionDate: "2026-01-15", monthlyFee: 12000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-004", name: "Zainab Fatima", fatherName: "Rashid Ali", phone: "03034567890", parentPhone: "03039876543", address: "Shah Rukn-e-Alam, Multan", batchId: "BAT-004", admissionDate: "2026-02-01", monthlyFee: 12000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-005", name: "Omar Farooq", fatherName: "Farooq Azam", phone: "03045678901", parentPhone: "03049876543", address: "Bosal Road, Multan", batchId: "BAT-005", admissionDate: "2026-02-05", monthlyFee: 10000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-006", name: "Sanaullah Khan", fatherName: "Inayat Khan", phone: "03056789012", parentPhone: "03059876543", address: "Model Town, Multan", batchId: "BAT-006", admissionDate: "2026-02-10", monthlyFee: 5000, discount: 500, status: "Active", photo: "" },
+                { id: "STU-007", name: "Maryam Bibi", fatherName: "Ghulam Nabi", phone: "03067890123", parentPhone: "03069876543", address: "New Multan, Multan", batchId: "BAT-001", admissionDate: "2026-02-12", monthlyFee: 8000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-008", name: "Hamza Sheikh", fatherName: "Sheikh Aslam", phone: "03078901234", parentPhone: "03079876543", address: "Officers Colony, Multan", batchId: "BAT-002", admissionDate: "2026-02-15", monthlyFee: 8000, discount: 0, status: "Inactive", photo: "" },
+                { id: "STU-009", name: "Iqra Nadeem", fatherName: "Nadeem Shah", phone: "03089012345", parentPhone: "03089876543", address: "Mumtazabad, Multan", batchId: "BAT-004", admissionDate: "2026-02-20", monthlyFee: 12000, discount: 2000, status: "Active", photo: "" },
+                { id: "STU-010", name: "Usman Ghani", fatherName: "Abdul Ghani", phone: "03090123456", parentPhone: "03099876543", address: "Sameejabad, Multan", batchId: "BAT-005", admissionDate: "2026-03-01", monthlyFee: 10000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-011", name: "Bilal Akram", fatherName: "Muhammad Akram", phone: "03101234567", parentPhone: "03109876543", address: "Suraj Miani, Multan", batchId: "BAT-002", admissionDate: "2026-03-05", monthlyFee: 8000, discount: 0, status: "Active", photo: "" },
+                { id: "STU-012", name: "Sadia Parveen", fatherName: "Malik Parvez", phone: "03112345678", parentPhone: "03119876543", address: "Vehari Road, Multan", batchId: "BAT-006", admissionDate: "2026-03-10", monthlyFee: 5000, discount: 0, status: "Active", photo: "" }
+            ],
+            teachers: [
+                { id: "TCH-001", name: "Ahmed Khan", phone: "03211112233", subject: "Mathematics", salary: 50000, status: "Active" },
+                { id: "TCH-002", name: "Sara Malik", phone: "03222223344", subject: "English Language", salary: 42000, status: "Active" },
+                { id: "TCH-003", name: "Usman Ali", phone: "03233334455", subject: "Physics", salary: 48000, status: "Active" },
+                { id: "TCH-004", name: "Fatima Noor", phone: "03244445566", subject: "Chemistry", salary: 45000, status: "Active" },
+                { id: "TCH-005", name: "Bilal Hussain", phone: "03255556677", subject: "Computer Science", salary: 52000, status: "Active" }
+            ],
+            courses: [
+                { id: "CRS-001", name: "Matric Science", duration: "12 months", fee: 8000 },
+                { id: "CRS-002", name: "FSc Pre-Medical", duration: "12 months", fee: 12000 },
+                { id: "CRS-003", name: "FSc Pre-Engineering", duration: "12 months", fee: 12000 },
+                { id: "CRS-004", name: "ICS Computer Science", duration: "12 months", fee: 10000 },
+                { id: "CRS-005", name: "English Language Course", duration: "3 months", fee: 5000 }
+            ],
+            batches: [
+                { id: "BAT-001", name: "Matric Morning A", courseId: "CRS-001", teacherId: "TCH-001", days: "Mon, Wed, Fri", time: "08:00 AM - 10:00 AM", capacity: 30 },
+                { id: "BAT-002", name: "Matric Evening B", courseId: "CRS-001", teacherId: "TCH-003", days: "Tue, Thu, Sat", time: "04:00 PM - 06:00 PM", capacity: 25 },
+                { id: "BAT-003", name: "FSc Medical Morning", courseId: "CRS-002", teacherId: "TCH-004", days: "Mon to Sat", time: "09:00 AM - 12:00 PM", capacity: 20 },
+                { id: "BAT-004", name: "FSc Engineering Evening", courseId: "CRS-003", teacherId: "TCH-001", days: "Mon to Sat", time: "03:00 PM - 06:00 PM", capacity: 20 },
+                { id: "BAT-005", name: "ICS Computer Lab", courseId: "CRS-004", teacherId: "TCH-005", days: "Mon, Tue, Wed", time: "02:00 PM - 04:00 PM", capacity: 15 },
+                { id: "BAT-006", name: "English Spoken Batch", courseId: "CRS-005", teacherId: "TCH-002", days: "Thu, Fri, Sat", time: "06:00 PM - 07:30 PM", capacity: 20 }
+            ],
+            fees: [
+                { id: "FEE-001", studentId: "STU-001", month: "2026-10", amount: 8000, paidAmount: 8000, dueDate: "2026-10-10", method: "Cash", date: "2026-10-05" },
+                { id: "FEE-002", studentId: "STU-002", month: "2026-10", amount: 11000, paidAmount: 11000, dueDate: "2026-10-10", method: "Bank Transfer", date: "2026-10-06" },
+                { id: "FEE-003", studentId: "STU-003", month: "2026-10", amount: 12000, paidAmount: 6000, dueDate: "2026-10-10", method: "JazzCash", date: "2026-10-08" },
+                { id: "FEE-004", studentId: "STU-004", month: "2026-10", amount: 12000, paidAmount: 0, dueDate: "2026-10-10", method: "Cash", date: "" },
+                { id: "FEE-005", studentId: "STU-005", month: "2026-10", amount: 10000, paidAmount: 10000, dueDate: "2026-10-10", method: "EasyPaisa", date: "2026-10-02" },
+                { id: "FEE-006", studentId: "STU-006", month: "2026-10", amount: 4500, paidAmount: 0, dueDate: "2026-10-10", method: "Cash", date: "" },
+                { id: "FEE-007", studentId: "STU-007", month: "2026-10", amount: 8000, paidAmount: 8000, dueDate: "2026-10-10", method: "Cash", date: "2026-10-09" },
+                { id: "FEE-008", studentId: "STU-009", month: "2026-10", amount: 10000, paidAmount: 5000, dueDate: "2026-10-10", method: "Cash", date: "2026-10-12" },
+                { id: "FEE-009", studentId: "STU-010", month: "2026-10", amount: 10000, paidAmount: 0, dueDate: "2026-10-10", method: "Cash", date: "" },
+                { id: "FEE-010", studentId: "STU-011", month: "2026-10", amount: 8000, paidAmount: 8000, dueDate: "2026-10-10", method: "JazzCash", date: "2026-10-04" },
+                { id: "FEE-011", studentId: "STU-012", month: "2026-10", amount: 5000, paidAmount: 5000, dueDate: "2026-10-10", method: "Cash", date: "2026-10-01" },
+                { id: "FEE-012", studentId: "STU-001", month: "2026-09", amount: 8000, paidAmount: 8000, dueDate: "2026-09-10", method: "Cash", date: "2026-09-05" },
+                { id: "FEE-013", studentId: "STU-002", month: "2026-09", amount: 11000, paidAmount: 11000, dueDate: "2026-09-10", method: "Cash", date: "2026-09-08" },
+                { id: "FEE-014", studentId: "STU-003", month: "2026-09", amount: 12000, paidAmount: 12000, dueDate: "2026-09-10", method: "Bank Transfer", date: "2026-09-10" },
+                { id: "FEE-015", studentId: "STU-004", month: "2026-09", amount: 12000, paidAmount: 12000, dueDate: "2026-09-10", method: "Cash", date: "2026-09-09" }
+            ],
+            attendance: [
+                { id: "ATT-001", date: "2026-10-19", studentId: "STU-001", batchId: "BAT-001", status: "Present", remarks: "" },
+                { id: "ATT-002", date: "2026-10-19", studentId: "STU-007", batchId: "BAT-001", status: "Present", remarks: "" },
+                { id: "ATT-003", date: "2026-10-19", studentId: "STU-002", batchId: "BAT-003", status: "Present", remarks: "On time" },
+                { id: "ATT-004", date: "2026-10-19", studentId: "STU-003", batchId: "BAT-003", status: "Absent", remarks: "Sick leave" },
+                { id: "ATT-005", date: "2026-10-19", studentId: "STU-004", batchId: "BAT-004", status: "Present", remarks: "" },
+                { id: "ATT-006", date: "2026-10-19", studentId: "STU-009", batchId: "BAT-004", status: "Late", remarks: "15 min late" },
+                { id: "ATT-007", date: "2026-10-18", studentId: "STU-001", batchId: "BAT-001", status: "Present", remarks: "" },
+                { id: "ATT-008", date: "2026-10-18", studentId: "STU-007", batchId: "BAT-001", status: "Present", remarks: "" },
+                { id: "ATT-009", date: "2026-10-18", studentId: "STU-005", batchId: "BAT-005", status: "Present", remarks: "" },
+                { id: "ATT-010", date: "2026-10-18", studentId: "STU-010", batchId: "BAT-005", status: "Absent", remarks: "" }
+            ],
+            expenses: [
+                { id: "EXP-001", date: "2026-10-01", category: "Rent", description: "Academy Campus Monthly Rent", amount: 65000, paidBy: "Admin" },
+                { id: "EXP-002", date: "2026-10-05", category: "Electricity", description: "LESCO Electricity Bill", amount: 24500, paidBy: "Admin" },
+                { id: "EXP-003", date: "2026-10-07", category: "Internet", description: "Ptcl Fiber Broadband", amount: 4500, paidBy: "Admin" },
+                { id: "EXP-004", date: "2026-10-10", category: "Maintenance", description: "UPS Battery Repair", amount: 3500, paidBy: "Admin" },
+                { id: "EXP-005", date: "2026-10-12", category: "Other", description: "Whiteboard Markers and Stationery", amount: 2800, paidBy: "Admin" }
+            ],
+            tests: [
+                { id: "TST-001", name: "Matric Physics Ch 1 Test", batchId: "BAT-001", date: "2026-10-05", totalMarks: 50 },
+                { id: "TST-002", name: "FSc Chemistry Midterm", batchId: "BAT-003", date: "2026-10-10", totalMarks: 100 },
+                { id: "TST-003", name: "ICS Computer Programming Quiz", batchId: "BAT-005", date: "2026-10-12", totalMarks: 25 },
+                { id: "TST-004", name: "English Spoken Grammar Assessment", batchId: "BAT-006", date: "2026-10-15", totalMarks: 50 }
+            ],
+            marks: [
+                { testId: "TST-001", studentId: "STU-001", obtainedMarks: 45 },
+                { testId: "TST-001", studentId: "STU-007", obtainedMarks: 38 },
+                { testId: "TST-002", studentId: "STU-002", obtainedMarks: 92 },
+                { testId: "TST-002", studentId: "STU-003", obtainedMarks: 74 }
+            ],
+            activityLogs: [
+                { timestamp: new Date().toISOString(), user: "Admin", action: "System Initialized", details: "Academy OS standard demo dataset loaded." }
+            ],
+            recycleBin: [],
+            settings: {
+                academyName: "Bright Future Academy",
+                address: "Opposite High Court, Multan",
+                phone: "0300-1234567",
+                currency: "PKR",
+                pin: "1234",
+                language: "en",
+                dueDay: 10,
+                receiptFooter: "Thank you for choosing Bright Future Academy! Education is the key to success."
+            }
+        };
+
+        // Application State Holder
+        let appState = {};
+        let actionHistory = []; // For Undo functionality
+        let activeModule = "Dashboard";
+        let dateFilterRange = "This Month";
+        let customDateFrom = "";
+        let customDateTo = "";
+
+        function initStorage() {
+            const stored = localStorage.getItem("academy_os_db");
+            if (stored) {
+                try {
+                    appState = JSON.parse(stored);
+                } catch (e) {
+                    console.error("Data parse error, fallback to demo data");
+                    appState = JSON.parse(JSON.stringify(defaultData));
+                    saveStorage();
+                }
+            } else {
+                appState = JSON.parse(JSON.stringify(defaultData));
+                saveStorage();
+            }
+        }
+
+        function saveStorage(logActionName = null, logDetails = null) {
+            localStorage.setItem("academy_os_db", JSON.stringify(appState));
+            if (logActionName) {
+                logActivity(logActionName, logDetails);
+            }
+        }
+
+        function logActivity(action, details) {
+            if (!appState.activityLogs) appState.activityLogs = [];
+            appState.activityLogs.unshift({
+                timestamp: new Date().toISOString(),
+                user: "Admin",
+                action: action,
+                details: details || ""
+            });
+            // Keep max 200 logs
+            if (appState.activityLogs.length > 200) appState.activityLogs.pop();
+            localStorage.setItem("academy_os_db", JSON.stringify(appState));
+        }
+
+        function pushUndoState(actionDescription) {
+            actionHistory.push({
+                description: actionDescription,
+                state: JSON.stringify(appState)
+            });
+            if (actionHistory.length > 15) actionHistory.shift();
+        }
+
+        function undoLastAction() {
+            if (actionHistory.length === 0) {
+                showToast("Nothing to undo", "info");
+                return;
+            }
+            const previous = actionHistory.pop();
+            appState = JSON.parse(previous.state);
+            saveStorage();
+            showToast(`Undone: ${previous.description}`, "success");
+            renderPage(activeModule);
+        }
+
+        // Soft Delete Helper
+        function softDelete(collectionName, id) {
+            pushUndoState(`Delete item from ${collectionName}`);
+            const index = appState[collectionName].findIndex(item => item.id === id);
+            if (index !== -1) {
+                const item = appState[collectionName].splice(index, 1)[0];
+                if (!appState.recycleBin) appState.recycleBin = [];
+                appState.recycleBin.push({
+                    originalCollection: collectionName,
+                    deletedAt: new Date().toISOString(),
+                    item: item
+                });
+                saveStorage("Delete Record", `Moved ${id} from ${collectionName} to Recycle Bin.`);
+                showToast("Record moved to Recycle Bin", "warning");
+                renderPage(activeModule);
+            }
+        }
+
+        // Currency Formatter
+        function formatCurrency(amount) {
+            const cur = appState.settings?.currency || "PKR";
+            return `${cur} ${Number(amount || 0).toLocaleString('en-US')}`;
+        }
+
+        // Date Formatter
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+        }
+
+        // Auto-increment ID Generator
+        function generateId(prefix, collectionName) {
+            const list = appState[collectionName] || [];
+            let maxNum = 0;
+            list.forEach(item => {
+                if (item.id && item.id.startsWith(prefix)) {
+                    const num = parseInt(item.id.split("-")[1], 10);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            return `${prefix}-${String(maxNum + 1).padStart(3, '0')}`;
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            
+            const bgClass = type === "success" ? "bg-emerald-600 text-white" :
+                            type === "error" ? "bg-red-600 text-white" :
+                            type === "warning" ? "bg-amber-500 text-white" : "bg-slate-800 text-white";
+                            
+            toast.className = `px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove("translate-y-2", "opacity-0"), 10);
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Date Filter Range Evaluator
+        function isDateInRange(dateString) {
+            if (!dateString) return false;
+            if (dateFilterRange === "All Time") return true;
+
+            const target = new Date(dateString);
+            target.setHours(0,0,0,0);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            if (dateFilterRange === "Today") {
+                return target.getTime() === today.getTime();
+            } else if (dateFilterRange === "Yesterday") {
+                const yest = new Date(today);
+                yest.setDate(yest.getDate() - 1);
+                return target.getTime() === yest.getTime();
+            } else if (dateFilterRange === "Last 7 Days") {
+                const past7 = new Date(today);
+                past7.setDate(past7.getDate() - 7);
+                return target >= past7 && target <= today;
+            } else if (dateFilterRange === "Last 30 Days") {
+                const past30 = new Date(today);
+                past30.setDate(past30.getDate() - 30);
+                return target >= past30 && target <= today;
+            } else if (dateFilterRange === "This Month") {
+                return target.getMonth() === today.getMonth() && target.getFullYear() === today.getFullYear();
+            } else if (dateFilterRange === "Previous Month") {
+                const prev = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                return target.getMonth() === prev.getMonth() && target.getFullYear() === prev.getFullYear();
+            } else if (dateFilterRange === "Custom") {
+                if (!customDateFrom && !customDateTo) return true;
+                const from = customDateFrom ? new Date(customDateFrom) : new Date("2000-01-01");
+                const to = customDateTo ? new Date(customDateTo) : new Date("2099-12-31");
+                from.setHours(0,0,0,0);
+                to.setHours(23,59,59,999);
+                return target >= from && target <= to;
+            }
+            return true;
+        }
+
+        function renderDateFilterBar() {
+            const chips = ["Today", "Yesterday", "Last 7 Days", "Last 30 Days", "This Month", "Previous Month", "All Time", "Custom"];
+            return `
+                <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/60 mb-6 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                    <div class="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
+                            <i class="fa-solid fa-filter text-indigo-500"></i> Date:
+                        </span>
+                        ${chips.map(chip => `
+                            <button onclick="setDateFilter('${chip}')" class="px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition ${dateFilterRange === chip ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none' : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}">
+                                ${chip}
+                            </button>
+                        `).join("")}
+                    </div>
+                    ${dateFilterRange === 'Custom' ? `
+                        <div class="flex items-center gap-2 text-xs">
+                            <input type="date" value="${customDateFrom}" onchange="customDateFrom=this.value; renderPage(activeModule);" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 text-slate-800 dark:text-white outline-none">
+                            <span class="text-slate-400">to</span>
+                            <input type="date" value="${customDateTo}" onchange="customDateTo=this.value; renderPage(activeModule);" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 text-slate-800 dark:text-white outline-none">
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function setDateFilter(chip) {
+            dateFilterRange = chip;
+            renderPage(activeModule);
+        }
+
+        const modules = [
+            { id: "Dashboard", label: "Dashboard", icon: "fa-chart-pie" },
+            { id: "Students", label: "Students", icon: "fa-user-graduate" },
+            { id: "Teachers", label: "Teachers", icon: "fa-chalkboard-user" },
+            { id: "Courses", label: "Courses", icon: "fa-book-bookmark" },
+            { id: "Batches", label: "Batches", icon: "fa-people-group" },
+            { id: "Fees", label: "Fees", icon: "fa-file-invoice-dollar" },
+            { id: "Attendance", label: "Attendance", icon: "fa-calendar-check" },
+            { id: "Expenses", label: "Expenses", icon: "fa-receipt" },
+            { id: "Tests", label: "Tests & Results", icon: "fa-square-poll-vertical" },
+            { id: "Timetable", label: "Timetable", icon: "fa-clock" },
+            { id: "Salary", label: "Salary Sheet", icon: "fa-money-check-dollar" },
+            { id: "WhatsApp", label: "WhatsApp Marketing", icon: "fa-brands fa-whatsapp" },
+            { id: "ActivityLog", label: "Activity Log", icon: "fa-clock-rotate-left" },
+            { id: "RecycleBin", label: "Recycle Bin", icon: "fa-trash-can" },
+            { id: "Settings", label: "Settings", icon: "fa-sliders" },
+            { id: "Backup", label: "Backup & Restore", icon: "fa-database" }
+        ];
+
+        function renderSidebar() {
+            const nav = document.getElementById("sidebar-menu");
+            nav.innerHTML = modules.map(m => `
+                <button onclick="navigateTo('${m.id}')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition ${activeModule === m.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800/60'}">
+                    <i class="fa-solid ${m.icon} w-5 text-center text-sm"></i>
+                    <span class="truncate">${m.label}</span>
+                </button>
+            `).join("");
+            document.getElementById("brand-name").innerText = appState.settings?.academyName || "Bright Future Academy";
+            document.getElementById("app-title-lock").innerText = appState.settings?.academyName || "Bright Future Academy";
+        }
+
+        function navigateTo(moduleId) {
+            activeModule = moduleId;
+            renderSidebar();
+            renderPage(moduleId);
+            if (window.innerWidth < 768) {
+                toggleSidebar(false);
+            }
+        }
+
+        function toggleSidebar(forceState) {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("sidebar-overlay");
+            if (forceState !== undefined) {
+                if (forceState) {
+                    sidebar.classList.remove("-translate-x-full");
+                    overlay.classList.remove("hidden");
+                } else {
+                    sidebar.classList.add("-translate-x-full");
+                    overlay.classList.add("hidden");
+                }
+            } else {
+                sidebar.classList.toggle("-translate-x-full");
+                overlay.classList.toggle("hidden");
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle("dark");
+        }
+
+        function lockSystem() {
+            document.getElementById("pin-lock-screen").classList.remove("hidden");
+        }
+
+        function unlockSystem() {
+            const pin = document.getElementById("pin-input").value;
+            const correctPin = appState.settings?.pin || "1234";
+            if (pin === correctPin) {
+                document.getElementById("pin-lock-screen").classList.add("hidden");
+                document.getElementById("pin-input").value = "";
+                document.getElementById("pin-error").classList.add("hidden");
+                showToast("Welcome back!", "success");
+            } else {
+                document.getElementById("pin-error").classList.remove("hidden");
+            }
+        }
+
+        function toggleLanguage() {
+            appState.settings.language = appState.settings.language === "en" ? "ur" : "en";
+            saveStorage();
+            showToast(`Language set to ${appState.settings.language.toUpperCase()}`, "info");
+        }
+
+        function openModal(title, contentHtml) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-body").innerHTML = contentHtml;
+            document.getElementById("modal-container").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("modal-container").classList.add("hidden");
+        }
+
+        function printDiv(divId) {
+            const content = document.getElementById(divId).innerHTML;
+            const printArea = document.getElementById("printable-area");
+            printArea.innerHTML = content;
+            printArea.classList.remove("hidden");
+            window.print();
+            printArea.classList.add("hidden");
+            printArea.innerHTML = "";
+        }
+
+        // Global Search
+        function handleGlobalSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById("search-results");
+            
+            if (!query) {
+                resultsContainer.classList.add("hidden");
+                return;
+            }
+
+            let results = [];
+            
+            // Search Students
+            appState.students.forEach(s => {
+                if (s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query) || s.phone.includes(query)) {
+                    results.push({ type: "Student", label: `${s.name} (${s.id})`, action: () => { navigateTo("Students"); resultsContainer.classList.add("hidden"); } });
+                }
+            });
+
+            // Search Teachers
+            appState.teachers.forEach(t => {
+                if (t.name.toLowerCase().includes(query) || t.subject.toLowerCase().includes(query)) {
+                    results.push({ type: "Teacher", label: `${t.name} - ${t.subject}`, action: () => { navigateTo("Teachers"); resultsContainer.classList.add("hidden"); } });
+                }
+            });
+
+            // Search Fees
+            appState.fees.forEach(f => {
+                const stu = appState.students.find(s => s.id === f.studentId);
+                if (f.id.toLowerCase().includes(query) || (stu && stu.name.toLowerCase().includes(query))) {
+                    results.push({ type: "Fee", label: `${f.id} - ${stu ? stu.name : 'Unknown'} (${f.month})`, action: () => { navigateTo("Fees"); resultsContainer.classList.add("hidden"); } });
+                }
+            });
+
+            if (results.length > 0) {
+                resultsContainer.innerHTML = results.map((r, idx) => `
+                    <div onclick="globalSearchClick(${idx})" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg cursor-pointer flex justify-between items-center text-xs">
+                        <span class="font-medium text-slate-800 dark:text-slate-200">${r.label}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 font-semibold">${r.type}</span>
+                    </div>
+                `).join("");
+                window.globalSearchResults = results;
+                resultsContainer.classList.remove("hidden");
+            } else {
+                resultsContainer.innerHTML = `<p class="text-xs text-slate-400 p-2 text-center">No matching records found</p>`;
+                resultsContainer.classList.remove("hidden");
+            }
+        }
+
+        function globalSearchClick(idx) {
+            if (window.globalSearchResults && window.globalSearchResults[idx]) {
+                window.globalSearchResults[idx].action();
+            }
+        }
+
+        function renderDashboard() {
+            // Compute KPI numbers filtered by date
+            const filteredFees = appState.fees.filter(f => !f.date || isDateInRange(f.date));
+            const filteredExpenses = appState.expenses.filter(e => isDateInRange(e.date));
+
+            const totalCollected = filteredFees.reduce((acc, f) => acc + (Number(f.paidAmount) || 0), 0);
+            
+            // Total Outstanding
+            const totalOutstanding = appState.fees.reduce((acc, f) => acc + (Number(f.amount) - Number(f.paidAmount)), 0);
+
+            // Fee Counts
+            let countOverdue = 0, countDue = 0, countPartial = 0;
+            const todayStr = new Date().toISOString().split("T")[0];
+            
+            appState.fees.forEach(f => {
+                const bal = Number(f.amount) - Number(f.paidAmount);
+                if (bal > 0) {
+                    if (f.dueDate && f.dueDate < todayStr) countOverdue++;
+                    else if (f.paidAmount > 0) countPartial++;
+                    else countDue++;
+                }
+            });
+
+            const totalExpenses = filteredExpenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
+            const netAmount = totalCollected - totalExpenses;
+
+            // Attendance %
+            const filteredAtt = appState.attendance.filter(a => isDateInRange(a.date));
+            const presentCount = filteredAtt.filter(a => a.status === "Present" || a.status === "Late").length;
+            const attPct = filteredAtt.length > 0 ? ((presentCount / filteredAtt.length) * 100).toFixed(1) : 0;
+
+            const activeStudents = appState.students.filter(s => s.status === "Active").length;
+            const activeBatches = appState.batches.length;
+            const totalTeachers = appState.teachers.filter(t => t.status === "Active").length;
+
+            return `
+                ${renderDateFilterBar()}
+
+                <!-- 10 KPI Cards Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-users text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Students</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${appState.students.length}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-user-check text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Students</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${activeStudents}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Collected</p>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-1">${formatCurrency(totalCollected)}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Outstanding Fees</p>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-1">${formatCurrency(totalOutstanding)}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Overdue Records</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${countOverdue}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-arrow-down-left text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Expenses</p>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-1">${formatCurrency(totalExpenses)}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl ${netAmount >= 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40' : 'bg-red-50 text-red-600 dark:bg-red-900/40'} flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-chart-line text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Net Income</p>
+                        <h3 class="text-lg font-bold ${netAmount < 0 ? 'text-red-600' : 'text-slate-800 dark:text-white'} mt-1">${formatCurrency(netAmount)}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-clipboard-user text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Attendance Rate</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${attPct}%</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-layer-group text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Batches</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${activeBatches}</h3>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-chalkboard-user text-lg"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Teaching Staff</p>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-1">${totalTeachers}</h3>
+                    </div>
+                </div>
+
+                <!-- Overdue Fees Special Alert Widget -->
+                <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                                <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 dark:text-amber-200 text-sm">Fee Collection Overview</h4>
+                                <p class="text-xs text-slate-600 dark:text-amber-400">
+                                    Fees Overdue: <strong class="text-red-600">${countOverdue}</strong> | 
+                                    Fees Due: <strong class="text-amber-600">${countDue}</strong> | 
+                                    Partial Paid: <strong class="text-indigo-600">${countPartial}</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="navigateTo('Fees')" class="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition">
+                            Manage Fees
+                        </button>
+                    </div>
+
+                    <!-- Top Overdue List -->
+                    <div class="space-y-2">
+                        ${renderTopOverdueStudents()}
+                    </div>
+                </div>
+
+                <!-- Visual Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Income vs Expense Bar Graphic -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-indigo-500"></i> Financial Summary
+                        </h4>
+                        <div class="h-48 flex items-end justify-center gap-12 border-b border-slate-200 dark:border-slate-700 pb-2">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-xs font-bold text-indigo-600">${formatCurrency(totalCollected)}</span>
+                                <div class="w-16 bg-indigo-500 rounded-t-xl transition-all duration-500" style="height: ${Math.min(140, (totalCollected / (totalCollected + totalExpenses || 1)) * 140)}px"></div>
+                                <span class="text-xs font-medium text-slate-500">Income</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-xs font-bold text-rose-600">${formatCurrency(totalExpenses)}</span>
+                                <div class="w-16 bg-rose-500 rounded-t-xl transition-all duration-500" style="height: ${Math.min(140, (totalExpenses / (totalCollected + totalExpenses || 1)) * 140)}px"></div>
+                                <span class="text-xs font-medium text-slate-500">Expenses</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Trend Gauge -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-500"></i> Attendance Rate Breakdown
+                        </h4>
+                        <div class="h-48 flex items-center justify-center gap-8">
+                            <div class="relative w-32 h-32 rounded-full border-8 border-slate-100 dark:border-slate-700 flex items-center justify-center">
+                                <div class="text-center">
+                                    <span class="text-2xl font-extrabold text-slate-800 dark:text-white">${attPct}%</span>
+                                    <p class="text-[10px] text-slate-400">Present Rate</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                    <span>Present: ${filteredAtt.filter(a => a.status === 'Present').length}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                                    <span>Late: ${filteredAtt.filter(a => a.status === 'Late').length}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                    <span>Absent: ${filteredAtt.filter(a => a.status === 'Absent').length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTopOverdueStudents() {
+            const todayStr = new Date().toISOString().split("T")[0];
+            const overdueFees = appState.fees.filter(f => {
+                const bal = Number(f.amount) - Number(f.paidAmount);
+                return bal > 0 && f.dueDate && f.dueDate < todayStr;
+            }).slice(0, 4);
+
+            if (overdueFees.length === 0) {
+                return `<p class="text-xs text-emerald-600 dark:text-emerald-400">Great! No overdue fee accounts present.</p>`;
+            }
+
+            return overdueFees.map(f => {
+                const student = appState.students.find(s => s.id === f.studentId);
+                const bal = Number(f.amount) - Number(f.paidAmount);
+                if (!student) return "";
+                
+                const waMsg = encodeURIComponent(`Dear Parent, this is a reminder from ${appState.settings.academyName} regarding overdue fee for ${student.name} (${f.month}). Pending balance: ${formatCurrency(bal)}. Please clear at your earliest convenience.`);
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl flex items-center justify-between border border-amber-100 dark:border-slate-700">
+                        <div class="flex items-center gap-3 text-xs">
+                            <div class="font-bold text-slate-800 dark:text-white">${student.name}</div>
+                            <span class="text-slate-400">(${student.id})</span>
+                            <span class="text-rose-600 font-semibold">${formatCurrency(bal)} pending</span>
+                        </div>
+                        <a href="https://wa.me/${student.parentPhone || student.phone}?text=${waMsg}" target="_blank" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> Remind
+                        </a>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderStudentsModule() {
+            let filtered = appState.students.filter(s => isDateInRange(s.admissionDate));
+            
+            const searchVal = (document.getElementById("student-search-input")?.value || "").toLowerCase();
+            const batchFilter = document.getElementById("student-batch-filter")?.value || "";
+            const statusFilter = document.getElementById("student-status-filter")?.value || "";
+
+            if (searchVal) {
+                filtered = filtered.filter(s => s.name.toLowerCase().includes(searchVal) || s.id.toLowerCase().includes(searchVal) || s.phone.includes(searchVal));
+            }
+            if (batchFilter) {
+                filtered = filtered.filter(s => s.batchId === batchFilter);
+            }
+            if (statusFilter) {
+                filtered = filtered.filter(s => s.status === statusFilter);
+            }
+
+            return `
+                ${renderDateFilterBar()}
+
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Student Management</h2>
+                        <p class="text-xs text-slate-500">Manage admissions, profiles & ID cards</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportCSV('students')" class="px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-csv"></i> Export CSV
+                        </button>
+                        <button onclick="printDiv('student-report-view')" class="px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-print"></i> PDF Report
+                        </button>
+                        <button onclick="openStudentForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-md shadow-indigo-200 dark:shadow-none">
+                            <i class="fa-solid fa-plus"></i> + Add Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm mb-6 flex flex-wrap gap-3 items-center justify-between">
+                    <div class="flex flex-wrap gap-3 items-center flex-1">
+                        <input type="text" id="student-search-input" onkeyup="renderPage('Students')" placeholder="Search by name, ID, phone..." class="px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs border border-slate-200 dark:border-slate-700 outline-none w-60">
+                        
+                        <select id="student-batch-filter" onchange="renderPage('Students')" class="px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="">All Batches</option>
+                            ${appState.batches.map(b => `<option value="${b.id}">${b.name}</option>`).join("")}
+                        </select>
+
+                        <select id="student-status-filter" onchange="renderPage('Students')" class="px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">${filtered.length} records</span>
+                </div>
+
+                <!-- Students Table -->
+                <div id="student-report-view" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                    <th class="py-3.5 px-4">Student ID</th>
+                                    <th class="py-3.5 px-4">Name</th>
+                                    <th class="py-3.5 px-4">Father Name</th>
+                                    <th class="py-3.5 px-4">Phone</th>
+                                    <th class="py-3.5 px-4">Batch</th>
+                                    <th class="py-3.5 px-4">Status</th>
+                                    <th class="py-3.5 px-4 text-right no-print">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                                ${filtered.length === 0 ? `<tr><td colspan="7" class="text-center py-6 text-slate-400">No students found</td></tr>` : 
+                                filtered.map(s => {
+                                    const batch = appState.batches.find(b => b.id === s.batchId);
+                                    return `
+                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                            <td class="py-3 px-4 font-bold text-indigo-600 dark:text-indigo-400">${s.id}</td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center text-[10px]">
+                                                    ${s.name.substring(0,2).toUpperCase()}
+                                                </div>
+                                                ${s.name}
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${s.fatherName}</td>
+                                            <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${s.phone}</td>
+                                            <td class="py-3 px-4">${batch ? batch.name : '-'}</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${s.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'}">
+                                                    ${s.status}
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 text-right space-x-1 no-print whitespace-nowrap">
+                                                <a href="https://wa.me/${s.phone}" target="_blank" class="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[11px] font-medium transition" title="WhatsApp">
+                                                    <i class="fa-brands fa-whatsapp"></i> WA
+                                                </a>
+                                                <button onclick="generateIDCard('${s.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-medium border border-slate-300 dark:border-slate-600 transition" title="ID Card">
+                                                    <i class="fa-solid fa-id-card"></i> ID
+                                                </button>
+                                                <button onclick="openStudentForm('${s.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-medium border border-slate-300 dark:border-slate-600 transition">
+                                                    Edit
+                                                </button>
+                                                <button onclick="softDelete('students', '${s.id}')" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-medium transition">
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openStudentForm(studentId = null) {
+            const student = studentId ? appState.students.find(s => s.id === studentId) : null;
+            const isEdit = !!student;
+            
+            const html = `
+                <form onsubmit="saveStudent(event, '${studentId || ''}')" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Full Name *</label>
+                            <input type="text" id="sf-name" required value="${student ? student.name : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Father Name *</label>
+                            <input type="text" id="sf-father" required value="${student ? student.fatherName : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Phone Number (03XXXXXXXXX) *</label>
+                            <input type="text" id="sf-phone" pattern="03[0-9]{9}" placeholder="03001234567" required value="${student ? student.phone : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Parent Phone</label>
+                            <input type="text" id="sf-parent-phone" pattern="03[0-9]{9}" placeholder="03009876543" value="${student ? student.parentPhone : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Assign Batch *</label>
+                            <select id="sf-batch" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="">Select Batch</option>
+                                ${appState.batches.map(b => `<option value="${b.id}" ${student && student.batchId === b.id ? 'selected' : ''}>${b.name}</option>`).join("")}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Admission Date *</label>
+                            <input type="date" id="sf-date" required value="${student ? student.admissionDate : new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Monthly Fee (PKR) *</label>
+                            <input type="number" id="sf-fee" required value="${student ? student.monthlyFee : 8000}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Discount (PKR)</label>
+                            <input type="number" id="sf-discount" value="${student ? student.discount : 0}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Status</label>
+                            <select id="sf-status" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="Active" ${student && student.status === 'Active' ? 'selected' : ''}>Active</option>
+                                <option value="Inactive" ${student && student.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold mb-1">Residential Address</label>
+                        <input type="text" id="sf-address" value="${student ? student.address : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-4 border-t dark:border-slate-700">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl font-medium">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium">${isEdit ? 'Update' : 'Save'} Student</button>
+                    </div>
+                </form>
+            `;
+            openModal(isEdit ? "Edit Student Profile" : "New Student Admission", html);
+        }
+
+        function saveStudent(e, studentId) {
+            e.preventDefault();
+            const batchId = document.getElementById("sf-batch").value;
+
+            // Check capacity limit
+            const batch = appState.batches.find(b => b.id === batchId);
+            if (batch) {
+                const enrolled = appState.students.filter(s => s.batchId === batchId && s.id !== studentId).length;
+                if (enrolled >= batch.capacity) {
+                    showToast(`Cannot enroll: Batch capacity limit reached (${batch.capacity})`, "error");
+                    return;
+                }
+            }
+
+            pushUndoState("Save Student Record");
+
+            const data = {
+                id: studentId || generateId("STU", "students"),
+                name: document.getElementById("sf-name").value,
+                fatherName: document.getElementById("sf-father").value,
+                phone: document.getElementById("sf-phone").value,
+                parentPhone: document.getElementById("sf-parent-phone").value,
+                address: document.getElementById("sf-address").value,
+                batchId: batchId,
+                admissionDate: document.getElementById("sf-date").value,
+                monthlyFee: parseFloat(document.getElementById("sf-fee").value) || 0,
+                discount: parseFloat(document.getElementById("sf-discount").value) || 0,
+                status: document.getElementById("sf-status").value,
+                photo: ""
+            };
+
+            if (studentId) {
+                const idx = appState.students.findIndex(s => s.id === studentId);
+                if (idx !== -1) appState.students[idx] = data;
+            } else {
+                appState.students.push(data);
+            }
+
+            saveStorage("Save Student", `Saved student ${data.name} (${data.id})`);
+            closeModal();
+            showToast("Student profile saved successfully", "success");
+            renderPage("Students");
+        }
+
+        function generateIDCard(studentId) {
+            const student = appState.students.find(s => s.id === studentId);
+            if (!student) return;
+            const batch = appState.batches.find(b => b.id === student.batchId);
+
+            const cardHtml = `
+                <div class="text-center p-4">
+                    <div id="id-card-print" class="w-80 h-48 bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-4 shadow-2xl relative mx-auto text-left border border-indigo-500/30 flex flex-col justify-between overflow-hidden">
+                        <div class="flex items-center justify-between border-b border-indigo-700/50 pb-2">
+                            <div>
+                                <h4 class="font-bold text-xs text-indigo-300 uppercase tracking-wider">${appState.settings.academyName}</h4>
+                                <p class="text-[9px] text-slate-400">STUDENT IDENTIFICATION CARD</p>
+                            </div>
+                            <i class="fa-solid fa-graduation-cap text-lg text-indigo-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3 my-2">
+                            <div class="w-14 h-14 rounded-xl bg-indigo-700 flex items-center justify-center font-bold text-lg text-white border-2 border-indigo-400">
+                                ${student.name.substring(0,2).toUpperCase()}
+                            </div>
+                            <div class="text-xs space-y-0.5">
+                                <h3 class="font-bold text-sm text-white">${student.name}</h3>
+                                <p class="text-[10px] text-slate-300">ID: <span class="font-bold text-amber-400">${student.id}</span></p>
+                                <p class="text-[10px] text-slate-300">Batch: ${batch ? batch.name : '-'}</p>
+                                <p class="text-[10px] text-slate-300">Phone: ${student.phone}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-indigo-700/50 text-[9px] text-slate-400">
+                            <span>Valid Student Pass</span>
+                            <i class="fa-solid fa-qrcode text-lg text-white"></i>
+                        </div>
+                    </div>
+                    <button onclick="printDiv('id-card-print')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-medium">Print Student ID</button>
+                </div>
+            `;
+            openModal("Student ID Card", cardHtml);
+        }
+
+        function renderTeachersModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Teaching Staff</h2>
+                        <p class="text-xs text-slate-500">Manage instructors & subjects</p>
+                    </div>
+                    <button onclick="openTeacherForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> + Add Teacher
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Teacher ID</th>
+                                <th class="py-3.5 px-4">Name</th>
+                                <th class="py-3.5 px-4">Phone</th>
+                                <th class="py-3.5 px-4">Subject</th>
+                                <th class="py-3.5 px-4">Base Salary</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${appState.teachers.map(t => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                    <td class="py-3 px-4 font-bold text-indigo-600 dark:text-indigo-400">${t.id}</td>
+                                    <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${t.name}</td>
+                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${t.phone}</td>
+                                    <td class="py-3 px-4 font-medium text-slate-700 dark:text-slate-200">${t.subject}</td>
+                                    <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${formatCurrency(t.salary)}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${t.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40' : 'bg-rose-100 text-rose-700'}">
+                                            ${t.status}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                                        <a href="https://wa.me/${t.phone}" target="_blank" class="px-2 py-1 bg-emerald-500 text-white rounded-lg text-[11px]">WA</a>
+                                        <button onclick="openTeacherForm('${t.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-[11px] border border-slate-300 dark:border-slate-600">Edit</button>
+                                        <button onclick="softDelete('teachers', '${t.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openTeacherForm(teacherId = null) {
+            const teacher = teacherId ? appState.teachers.find(t => t.id === teacherId) : null;
+            const html = `
+                <form onsubmit="saveTeacher(event, '${teacherId || ''}')" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Full Name *</label>
+                        <input type="text" id="tf-name" required value="${teacher ? teacher.name : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Phone Number *</label>
+                        <input type="text" id="tf-phone" required value="${teacher ? teacher.phone : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Primary Subject *</label>
+                            <input type="text" id="tf-subject" required value="${teacher ? teacher.subject : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Base Monthly Salary (PKR) *</label>
+                            <input type="number" id="tf-salary" required value="${teacher ? teacher.salary : 40000}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Staff</button>
+                    </div>
+                </form>
+            `;
+            openModal(teacher ? "Edit Teacher" : "Add Teacher", html);
+        }
+
+        function saveTeacher(e, teacherId) {
+            e.preventDefault();
+            pushUndoState("Save Teacher Record");
+            const data = {
+                id: teacherId || generateId("TCH", "teachers"),
+                name: document.getElementById("tf-name").value,
+                phone: document.getElementById("tf-phone").value,
+                subject: document.getElementById("tf-subject").value,
+                salary: parseFloat(document.getElementById("tf-salary").value) || 0,
+                status: "Active"
+            };
+
+            if (teacherId) {
+                const idx = appState.teachers.findIndex(t => t.id === teacherId);
+                if (idx !== -1) appState.teachers[idx] = data;
+            } else {
+                appState.teachers.push(data);
+            }
+
+            saveStorage("Save Teacher", `Saved teacher ${data.name}`);
+            closeModal();
+            showToast("Teacher record updated", "success");
+            renderPage("Teachers");
+        }
+
+        function renderCoursesModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Academic Courses</h2>
+                        <p class="text-xs text-slate-500">Course offerings & fee structures</p>
+                    </div>
+                    <button onclick="openCourseForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> + Add Course
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Course Name</th>
+                                <th class="py-3.5 px-4">Duration</th>
+                                <th class="py-3.5 px-4">Standard Fee</th>
+                                <th class="py-3.5 px-4">Batches Count</th>
+                                <th class="py-3.5 px-4">Enrolled Students</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${appState.courses.map(c => {
+                                const batches = appState.batches.filter(b => b.courseId === c.id);
+                                const batchIds = batches.map(b => b.id);
+                                const studentCount = appState.students.filter(s => batchIds.includes(s.batchId)).length;
+                                return `
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                        <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${c.name}</td>
+                                        <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${c.duration}</td>
+                                        <td class="py-3 px-4 font-semibold text-indigo-600 dark:text-indigo-400">${formatCurrency(c.fee)}</td>
+                                        <td class="py-3 px-4"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded-md font-bold">${batches.length}</span></td>
+                                        <td class="py-3 px-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 rounded-md font-bold">${studentCount}</span></td>
+                                        <td class="py-3 px-4 text-right space-x-1">
+                                            <button onclick="openCourseForm('${c.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-[11px] border border-slate-300 dark:border-slate-600">Edit</button>
+                                            <button onclick="softDelete('courses', '${c.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openCourseForm(courseId = null) {
+            const course = courseId ? appState.courses.find(c => c.id === courseId) : null;
+            const html = `
+                <form onsubmit="saveCourse(event, '${courseId || ''}')" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Course Title *</label>
+                        <input type="text" id="cf-name" required value="${course ? course.name : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Duration *</label>
+                            <input type="text" id="cf-duration" placeholder="e.g. 12 months" required value="${course ? course.duration : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Monthly Fee (PKR) *</label>
+                            <input type="number" id="cf-fee" required value="${course ? course.fee : 8000}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Course</button>
+                    </div>
+                </form>
+            `;
+            openModal(course ? "Edit Course" : "Add Course", html);
+        }
+
+        function saveCourse(e, courseId) {
+            e.preventDefault();
+            pushUndoState("Save Course");
+            const data = {
+                id: courseId || generateId("CRS", "courses"),
+                name: document.getElementById("cf-name").value,
+                duration: document.getElementById("cf-duration").value,
+                fee: parseFloat(document.getElementById("cf-fee").value) || 0
+            };
+
+            if (courseId) {
+                const idx = appState.courses.findIndex(c => c.id === courseId);
+                if (idx !== -1) appState.courses[idx] = data;
+            } else {
+                appState.courses.push(data);
+            }
+
+            saveStorage("Save Course", `Saved course ${data.name}`);
+            closeModal();
+            showToast("Course program saved", "success");
+            renderPage("Courses");
+        }
+
+        function renderBatchesModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Batch Management</h2>
+                        <p class="text-xs text-slate-500">Class schedules & capacity utilization</p>
+                    </div>
+                    <button onclick="openBatchForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> + Add Batch
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                    <th class="py-3.5 px-4">Batch ID</th>
+                                    <th class="py-3.5 px-4">Batch Name</th>
+                                    <th class="py-3.5 px-4">Course</th>
+                                    <th class="py-3.5 px-4">Teacher</th>
+                                    <th class="py-3.5 px-4">Timing & Days</th>
+                                    <th class="py-3.5 px-4">Occupancy</th>
+                                    <th class="py-3.5 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                                ${appState.batches.map(b => {
+                                    const course = appState.courses.find(c => c.id === b.courseId);
+                                    const teacher = appState.teachers.find(t => t.id === b.teacherId);
+                                    const studentCount = appState.students.filter(s => s.batchId === b.id).length;
+                                    const seatsLeft = b.capacity - studentCount;
+                                    const occPct = Math.min(100, Math.round((studentCount / b.capacity) * 100));
+
+                                    return `
+                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                            <td class="py-3 px-4 font-bold text-indigo-600 dark:text-indigo-400">${b.id}</td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${b.name}</td>
+                                            <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${course ? course.name : '-'}</td>
+                                            <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${teacher ? teacher.name : '-'}</td>
+                                            <td class="py-3 px-4">
+                                                <p class="font-medium text-slate-800 dark:text-slate-200">${b.time}</p>
+                                                <p class="text-[10px] text-slate-400">${b.days}</p>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div class="w-32">
+                                                    <div class="flex justify-between text-[10px] font-semibold mb-1">
+                                                        <span>${studentCount}/${b.capacity} (${seatsLeft} left)</span>
+                                                        <span>${occPct}%</span>
+                                                    </div>
+                                                    <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                        <div class="h-full ${occPct > 90 ? 'bg-rose-500' : 'bg-indigo-600'}" style="width: ${occPct}%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-right space-x-1">
+                                                <button onclick="openBatchForm('${b.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-[11px] border border-slate-300 dark:border-slate-600">Edit</button>
+                                                <button onclick="softDelete('batches', '${b.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openBatchForm(batchId = null) {
+            const batch = batchId ? appState.batches.find(b => b.id === batchId) : null;
+            const html = `
+                <form onsubmit="saveBatch(event, '${batchId || ''}')" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Batch Name *</label>
+                        <input type="text" id="bf-name" required value="${batch ? batch.name : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Select Course *</label>
+                            <select id="bf-course" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="">Select Course</option>
+                                ${appState.courses.map(c => `<option value="${c.id}" ${batch && batch.courseId === c.id ? 'selected' : ''}>${c.name}</option>`).join("")}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Select Instructor *</label>
+                            <select id="bf-teacher" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="">Select Teacher</option>
+                                ${appState.teachers.map(t => `<option value="${t.id}" ${batch && batch.teacherId === t.id ? 'selected' : ''}>${t.name}</option>`).join("")}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Days Schedule</label>
+                            <input type="text" id="bf-days" placeholder="Mon, Wed, Fri" value="${batch ? batch.days : 'Mon, Wed, Fri'}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Time Slot</label>
+                            <input type="text" id="bf-time" placeholder="09:00 AM - 11:00 AM" value="${batch ? batch.time : '09:00 AM - 11:00 AM'}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Max Capacity</label>
+                            <input type="number" id="bf-capacity" required value="${batch ? batch.capacity : 25}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Batch</button>
+                    </div>
+                </form>
+            `;
+            openModal(batch ? "Edit Batch" : "Add Batch", html);
+        }
+
+        function saveBatch(e, batchId) {
+            e.preventDefault();
+            pushUndoState("Save Batch");
+            const data = {
+                id: batchId || generateId("BAT", "batches"),
+                name: document.getElementById("bf-name").value,
+                courseId: document.getElementById("bf-course").value,
+                teacherId: document.getElementById("bf-teacher").value,
+                days: document.getElementById("bf-days").value,
+                time: document.getElementById("bf-time").value,
+                capacity: parseInt(document.getElementById("bf-capacity").value, 10) || 20
+            };
+
+            if (batchId) {
+                const idx = appState.batches.findIndex(b => b.id === batchId);
+                if (idx !== -1) appState.batches[idx] = data;
+            } else {
+                appState.batches.push(data);
+            }
+
+            saveStorage("Save Batch", `Saved batch ${data.name}`);
+            closeModal();
+            showToast("Batch details updated", "success");
+            renderPage("Batches");
+        }
+
+        function renderFeesModule() {
+            let filtered = appState.fees.filter(f => !f.date || isDateInRange(f.date));
+
+            const statusFilter = document.getElementById("fee-status-filter")?.value || "";
+            const todayStr = new Date().toISOString().split("T")[0];
+
+            if (statusFilter) {
+                filtered = filtered.filter(f => {
+                    const bal = Number(f.amount) - Number(f.paidAmount);
+                    if (statusFilter === "PAID") return bal === 0;
+                    if (statusFilter === "PARTIAL") return bal > 0 && f.paidAmount > 0;
+                    if (statusFilter === "DUE") return bal > 0 && f.paidAmount === 0 && (!f.dueDate || f.dueDate >= todayStr);
+                    if (statusFilter === "OVERDUE") return bal > 0 && f.dueDate && f.dueDate < todayStr;
+                    return true;
+                });
+            }
+
+            return `
+                ${renderDateFilterBar()}
+
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Fee Management</h2>
+                        <p class="text-xs text-slate-500">Invoicing & payment tracking</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="generateMonthlyFeesModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-md shadow-emerald-200 dark:shadow-none">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Monthly Fees
+                        </button>
+                        <button onclick="openFeeForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-md shadow-indigo-200 dark:shadow-none">
+                            <i class="fa-solid fa-plus"></i> + Add Fee Record
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm mb-6 flex items-center justify-between">
+                    <select id="fee-status-filter" onchange="renderPage('Fees')" class="px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs border border-slate-200 dark:border-slate-700 outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="PAID">PAID</option>
+                        <option value="PARTIAL">PARTIAL</option>
+                        <option value="DUE">DUE</option>
+                        <option value="OVERDUE">OVERDUE</option>
+                    </select>
+                    <span class="text-xs font-semibold text-slate-500">${filtered.length} Fee Invoices</span>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                    <th class="py-3.5 px-4">Invoice #</th>
+                                    <th class="py-3.5 px-4">Student</th>
+                                    <th class="py-3.5 px-4">Month</th>
+                                    <th class="py-3.5 px-4">Fee Amount</th>
+                                    <th class="py-3.5 px-4">Paid Amount</th>
+                                    <th class="py-3.5 px-4">Balance</th>
+                                    <th class="py-3.5 px-4">Status</th>
+                                    <th class="py-3.5 px-4">Method</th>
+                                    <th class="py-3.5 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                                ${filtered.map(f => {
+                                    const student = appState.students.find(s => s.id === f.studentId);
+                                    const bal = Number(f.amount) - Number(f.paidAmount);
+                                    
+                                    let statusLabel = "PAID";
+                                    let statusBadgeClass = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40";
+                                    
+                                    if (bal > 0) {
+                                        if (f.dueDate && f.dueDate < todayStr) {
+                                            statusLabel = "OVERDUE";
+                                            statusBadgeClass = "bg-rose-100 text-rose-700 dark:bg-rose-900/40";
+                                        } else if (f.paidAmount > 0) {
+                                            statusLabel = "PARTIAL";
+                                            statusBadgeClass = "bg-amber-100 text-amber-700 dark:bg-amber-900/40";
+                                        } else {
+                                            statusLabel = "DUE";
+                                            statusBadgeClass = "bg-orange-100 text-orange-700 dark:bg-orange-900/40";
+                                        }
+                                    }
+
+                                    return `
+                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                            <td class="py-3 px-4 font-bold text-indigo-600 dark:text-indigo-400">${f.id}</td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${student ? student.name : 'Unknown'}</td>
+                                            <td class="py-3 px-4 font-medium text-slate-600 dark:text-slate-300">${f.month}</td>
+                                            <td class="py-3 px-4 font-semibold">${formatCurrency(f.amount)}</td>
+                                            <td class="py-3 px-4 text-emerald-600 font-semibold">${formatCurrency(f.paidAmount)}</td>
+                                            <td class="py-3 px-4 font-bold ${bal > 0 ? 'text-rose-600' : 'text-slate-400'}">${formatCurrency(bal)}</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${statusBadgeClass}">${statusLabel}</span>
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-500">${f.method || 'Cash'}</td>
+                                            <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                                                <button onclick="printFeeReceipt('${f.id}')" class="px-2 py-1 bg-indigo-600 text-white rounded-lg text-[11px] font-medium transition">
+                                                    <i class="fa-solid fa-print"></i> Print Receipt
+                                                </button>
+                                                <button onclick="openFeeForm('${f.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-[11px] border border-slate-300 dark:border-slate-600">Edit</button>
+                                                <button onclick="softDelete('fees', '${f.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateMonthlyFeesModal() {
+            const currentMonth = new Date().toISOString().substring(0,7);
+            const html = `
+                <div class="space-y-4 text-xs">
+                    <p class="text-slate-600">Generate monthly fee invoices for all Active students for the selected month. Existing records for the target month will be skipped to avoid duplication.</p>
+                    <div>
+                        <label class="block font-semibold mb-1">Target Billing Month *</label>
+                        <input type="month" id="gen-month" value="${currentMonth}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="button" onclick="processMonthlyFeesGeneration()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium">Generate Invoices</button>
+                    </div>
+                </div>
+            `;
+            openModal("Generate Monthly Fees", html);
+        }
+
+        function processMonthlyFeesGeneration() {
+            const targetMonth = document.getElementById("gen-month").value;
+            if (!targetMonth) return;
+
+            pushUndoState("Generate Monthly Fees Batch");
+
+            const activeStudents = appState.students.filter(s => s.status === "Active");
+            let countGenerated = 0;
+            const dueDay = appState.settings?.dueDay || 10;
+            const dueDate = `${targetMonth}-${String(dueDay).padStart(2,'0')}`;
+
+            activeStudents.forEach(stu => {
+                const exists = appState.fees.some(f => f.studentId === stu.id && f.month === targetMonth);
+                if (!exists) {
+                    const payableFee = Math.max(0, stu.monthlyFee - stu.discount);
+                    appState.fees.push({
+                        id: generateId("FEE", "fees"),
+                        studentId: stu.id,
+                        month: targetMonth,
+                        amount: payableFee,
+                        paidAmount: 0,
+                        dueDate: dueDate,
+                        method: "Cash",
+                        date: ""
+                    });
+                    countGenerated++;
+                }
+            });
+
+            saveStorage("Generate Fees", `Generated ${countGenerated} fee records for ${targetMonth}`);
+            closeModal();
+            showToast(`Generated ${countGenerated} fee invoices for ${targetMonth}`, "success");
+            renderPage("Fees");
+        }
+
+        function openFeeForm(feeId = null) {
+            const fee = feeId ? appState.fees.find(f => f.id === feeId) : null;
+            const html = `
+                <form onsubmit="saveFee(event, '${feeId || ''}')" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Student *</label>
+                        <select id="ff-student" required ${fee ? 'disabled' : ''} class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            <option value="">Select Student</option>
+                            ${appState.students.map(s => `<option value="${s.id}" ${fee && fee.studentId === s.id ? 'selected' : ''}>${s.name} (${s.id})</option>`).join("")}
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Fee Month *</label>
+                            <input type="month" id="ff-month" required value="${fee ? fee.month : new Date().toISOString().substring(0,7)}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Due Date *</label>
+                            <input type="date" id="ff-duedate" required value="${fee ? fee.dueDate : new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Total Fee Amount (PKR) *</label>
+                            <input type="number" id="ff-amount" required value="${fee ? fee.amount : 8000}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Amount Received (PKR)</label>
+                            <input type="number" id="ff-paid" value="${fee ? fee.paidAmount : 0}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Payment Method</label>
+                            <select id="ff-method" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="Cash" ${fee && fee.method === 'Cash' ? 'selected' : ''}>Cash</option>
+                                <option value="Bank Transfer" ${fee && fee.method === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                <option value="JazzCash" ${fee && fee.method === 'JazzCash' ? 'selected' : ''}>JazzCash</option>
+                                <option value="EasyPaisa" ${fee && fee.method === 'EasyPaisa' ? 'selected' : ''}>EasyPaisa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Payment Date</label>
+                            <input type="date" id="ff-date" value="${fee ? fee.date : new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Fee Record</button>
+                    </div>
+                </form>
+            `;
+            openModal(fee ? "Edit Fee Invoice" : "Add Fee Record", html);
+        }
+
+        function saveFee(e, feeId) {
+            e.preventDefault();
+            pushUndoState("Save Fee Record");
+
+            const paidAmt = parseFloat(document.getElementById("ff-paid").value) || 0;
+            const data = {
+                id: feeId || generateId("FEE", "fees"),
+                studentId: document.getElementById("ff-student") ? document.getElementById("ff-student").value : (appState.fees.find(f => f.id === feeId)?.studentId),
+                month: document.getElementById("ff-month").value,
+                dueDate: document.getElementById("ff-duedate").value,
+                amount: parseFloat(document.getElementById("ff-amount").value) || 0,
+                paidAmount: paidAmt,
+                method: document.getElementById("ff-method").value,
+                date: paidAmt > 0 ? document.getElementById("ff-date").value : ""
+            };
+
+            if (feeId) {
+                const idx = appState.fees.findIndex(f => f.id === feeId);
+                if (idx !== -1) appState.fees[idx] = data;
+            } else {
+                appState.fees.push(data);
+            }
+
+            saveStorage("Save Fee", `Saved fee invoice ${data.id}`);
+            closeModal();
+            showToast("Fee record saved", "success");
+            renderPage("Fees");
+        }
+
+        function printFeeReceipt(feeId) {
+            const fee = appState.fees.find(f => f.id === feeId);
+            if (!fee) return;
+            const student = appState.students.find(s => s.id === fee.studentId);
+            const batch = student ? appState.batches.find(b => b.id === student.batchId) : null;
+            const bal = fee.amount - fee.paidAmount;
+
+            const html = `
+                <div class="text-center p-4">
+                    <div id="receipt-print-area" class="w-[500px] bg-white text-slate-800 p-6 rounded-xl border border-slate-300 shadow-xl mx-auto text-left space-y-4">
+                        <div class="border-b pb-3 flex justify-between items-start">
+                            <div>
+                                <h2 class="text-lg font-bold text-indigo-900">${appState.settings.academyName}</h2>
+                                <p class="text-[10px] text-slate-500">${appState.settings.address} | Ph: ${appState.settings.phone}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold px-2 py-1 bg-indigo-100 text-indigo-800 rounded">OFFICIAL RECEIPT</span>
+                                <p class="text-[10px] text-slate-500 mt-1">Receipt #: <strong>${fee.id}</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div><strong>Student Name:</strong> ${student ? student.name : 'Unknown'}</div>
+                            <div><strong>Student ID:</strong> ${student ? student.id : '-'}</div>
+                            <div><strong>Batch:</strong> ${batch ? batch.name : '-'}</div>
+                            <div><strong>Billing Month:</strong> ${fee.month}</div>
+                            <div><strong>Payment Date:</strong> ${fee.date || '-'}</div>
+                            <div><strong>Payment Method:</strong> ${fee.method || 'Cash'}</div>
+                        </div>
+
+                        <table class="w-full text-xs border border-collapse my-3">
+                            <tr class="bg-slate-100">
+                                <th class="p-2 border text-left">Description</th>
+                                <th class="p-2 border text-right">Amount</th>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border">Tuition Fee - ${fee.month}</td>
+                                <td class="p-2 border text-right">${formatCurrency(fee.amount)}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-bold">Amount Paid</td>
+                                <td class="p-2 border text-right font-bold text-emerald-600">${formatCurrency(fee.paidAmount)}</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="p-2 border font-bold">Remaining Balance</td>
+                                <td class="p-2 border text-right font-bold text-rose-600">${formatCurrency(bal)}</td>
+                            </tr>
+                        </table>
+
+                        <p class="text-[10px] italic text-slate-500">${appState.settings.receiptFooter}</p>
+
+                        <div class="pt-8 flex justify-between items-end text-xs text-slate-500">
+                            <div>____________________<br>Authorized Signature</div>
+                            <div>Printed on: ${new Date().toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <button onclick="printDiv('receipt-print-area')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-medium">Print A5 Receipt</button>
+                </div>
+            `;
+            openModal("Fee Payment Receipt", html);
+        }
+
+        function renderAttendanceModule() {
+            let filtered = appState.attendance.filter(a => isDateInRange(a.date));
+
+            const presentCount = filtered.filter(a => a.status === "Present").length;
+            const absentCount = filtered.filter(a => a.status === "Absent").length;
+            const lateCount = filtered.filter(a => a.status === "Late").length;
+
+            return `
+                ${renderDateFilterBar()}
+
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Attendance Tracking</h2>
+                        <p class="text-xs text-slate-500">Daily student attendance logs</p>
+                    </div>
+                    <button onclick="openMarkTodayAttendanceModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-md shadow-emerald-200 dark:shadow-none">
+                        <i class="fa-solid fa-check-double"></i> Mark Today's Attendance
+                    </button>
+                </div>
+
+                <!-- 3 Summary Cards -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm text-center">
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Present</p>
+                        <h3 class="text-2xl font-bold text-emerald-600 mt-1">${presentCount}</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm text-center">
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Absent</p>
+                        <h3 class="text-2xl font-bold text-rose-600 mt-1">${absentCount}</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm text-center">
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Late</p>
+                        <h3 class="text-2xl font-bold text-amber-500 mt-1">${lateCount}</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Date</th>
+                                <th class="py-3.5 px-4">Student</th>
+                                <th class="py-3.5 px-4">Batch</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4">Remarks</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${filtered.map(a => {
+                                const student = appState.students.find(s => s.id === a.studentId);
+                                const batch = appState.batches.find(b => b.id === a.batchId);
+                                return `
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                        <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${a.date}</td>
+                                        <td class="py-3 px-4 text-slate-700 dark:text-slate-200 font-medium">${student ? student.name : 'Unknown'}</td>
+                                        <td class="py-3 px-4 text-slate-500">${batch ? batch.name : '-'}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${a.status === 'Present' ? 'bg-emerald-100 text-emerald-700' : a.status === 'Absent' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}">
+                                                ${a.status}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4 text-slate-400 italic">${a.remarks || '-'}</td>
+                                        <td class="py-3 px-4 text-right">
+                                            <button onclick="softDelete('attendance', '${a.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openMarkTodayAttendanceModal() {
+            const html = `
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Select Target Batch *</label>
+                        <select id="att-batch-select" onchange="loadStudentsForAttendanceMarking(this.value)" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            <option value="">Select Batch</option>
+                            ${appState.batches.map(b => `<option value="${b.id}">${b.name}</option>`).join("")}
+                        </select>
+                    </div>
+
+                    <div id="att-students-list" class="space-y-2 max-h-60 overflow-y-auto p-2 border rounded-xl">
+                        <p class="text-center text-slate-400 py-4">Please choose a batch to mark attendance</p>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="button" onclick="saveBulkAttendance()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium">Save Attendance</button>
+                    </div>
+                </div>
+            `;
+            openModal("Mark Batch Attendance", html);
+        }
+
+        function loadStudentsForAttendanceMarking(batchId) {
+            const container = document.getElementById("att-students-list");
+            if (!batchId) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-4">Please choose a batch</p>`;
+                return;
+            }
+
+            const students = appState.students.filter(s => s.batchId === batchId && s.status === "Active");
+            if (students.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-4">No active students in this batch</p>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-2 pb-2 border-b">
+                    <span class="font-bold">Students (${students.length})</span>
+                    <button type="button" onclick="markAllAttendanceStatus('Present')" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">Mark All Present</button>
+                </div>
+                ${students.map(s => `
+                    <div class="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg border dark:border-slate-700">
+                        <span class="font-semibold text-slate-800 dark:text-white">${s.name} (${s.id})</span>
+                        <div class="flex items-center gap-1 att-radio-group" data-student-id="${s.id}">
+                            <button type="button" onclick="setAttBtnStatus(this, 'Present')" class="att-btn px-2.5 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold">P</button>
+                            <button type="button" onclick="setAttBtnStatus(this, 'Absent')" class="att-btn px-2.5 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 rounded text-[10px] font-bold">A</button>
+                            <button type="button" onclick="setAttBtnStatus(this, 'Late')" class="att-btn px-2.5 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 rounded text-[10px] font-bold">L</button>
+                        </div>
+                    </div>
+                `).join("")}
+            `;
+        }
+
+        function setAttBtnStatus(btn, status) {
+            const group = btn.closest(".att-radio-group");
+            group.querySelectorAll(".att-btn").forEach(b => {
+                b.className = "att-btn px-2.5 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 rounded text-[10px] font-bold";
+            });
+            if (status === 'Present') btn.className = "att-btn px-2.5 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold";
+            if (status === 'Absent') btn.className = "att-btn px-2.5 py-1 bg-rose-600 text-white rounded text-[10px] font-bold";
+            if (status === 'Late') btn.className = "att-btn px-2.5 py-1 bg-amber-500 text-white rounded text-[10px] font-bold";
+            group.dataset.selectedStatus = status;
+        }
+
+        function markAllAttendanceStatus(status) {
+            document.querySelectorAll(".att-radio-group").forEach(group => {
+                const btn = group.querySelector(status === 'Present' ? "button:nth-child(1)" : status === 'Absent' ? "button:nth-child(2)" : "button:nth-child(3)");
+                if (btn) setAttBtnStatus(btn, status);
+            });
+        }
+
+        function saveBulkAttendance() {
+            const batchId = document.getElementById("att-batch-select").value;
+            if (!batchId) return;
+
+            pushUndoState("Save Attendance Batch");
+            const todayStr = new Date().toISOString().split("T")[0];
+            let countSaved = 0;
+
+            document.querySelectorAll(".att-radio-group").forEach(group => {
+                const studentId = group.dataset.studentId;
+                const status = group.dataset.selectedStatus || "Present";
+
+                // Remove duplicate entry for same date and student if exists
+                appState.attendance = appState.attendance.filter(a => !(a.date === todayStr && a.studentId === studentId));
+
+                appState.attendance.push({
+                    id: generateId("ATT", "attendance"),
+                    date: todayStr,
+                    studentId: studentId,
+                    batchId: batchId,
+                    status: status,
+                    remarks: ""
+                });
+                countSaved++;
+            });
+
+            saveStorage("Mark Attendance", `Marked ${countSaved} attendance entries for batch ${batchId}`);
+            closeModal();
+            showToast("Attendance logged successfully", "success");
+            renderPage("Attendance");
+        }
+
+        function renderExpensesModule() {
+            let filtered = appState.expenses.filter(e => isDateInRange(e.date));
+            const totalExp = filtered.reduce((acc, e) => acc + Number(e.amount), 0);
+
+            return `
+                ${renderDateFilterBar()}
+
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Expense Tracker</h2>
+                        <p class="text-xs text-slate-500">Academy operational expenditures</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="printDiv('expense-report')" class="px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-medium">PDF Report</button>
+                        <button onclick="openExpenseForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium shadow-md shadow-indigo-200 dark:shadow-none">
+                            <i class="fa-solid fa-plus"></i> + Add Expense
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/40 mb-6 flex items-center justify-between">
+                    <span class="text-xs font-bold text-rose-800 dark:text-rose-200">Total Filtered Expenses</span>
+                    <span class="text-xl font-extrabold text-rose-600">${formatCurrency(totalExp)}</span>
+                </div>
+
+                <div id="expense-report" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Expense ID</th>
+                                <th class="py-3.5 px-4">Date</th>
+                                <th class="py-3.5 px-4">Category</th>
+                                <th class="py-3.5 px-4">Description</th>
+                                <th class="py-3.5 px-4">Amount</th>
+                                <th class="py-3.5 px-4">Paid By</th>
+                                <th class="py-3.5 px-4 text-right no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${filtered.map(e => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                    <td class="py-3 px-4 font-bold text-indigo-600 dark:text-indigo-400">${e.id}</td>
+                                    <td class="py-3 px-4 font-medium text-slate-800 dark:text-white">${e.date}</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded font-semibold text-[10px]">${e.category}</span></td>
+                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${e.description}</td>
+                                    <td class="py-3 px-4 font-bold text-rose-600">${formatCurrency(e.amount)}</td>
+                                    <td class="py-3 px-4 text-slate-500">${e.paidBy}</td>
+                                    <td class="py-3 px-4 text-right space-x-1 no-print">
+                                        <button onclick="openExpenseForm('${e.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[11px] border">Edit</button>
+                                        <button onclick="softDelete('expenses', '${e.id}')" class="px-2 py-1 bg-rose-600 text-white rounded text-[11px]">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openExpenseForm(expenseId = null) {
+            const exp = expenseId ? appState.expenses.find(e => e.id === expenseId) : null;
+            const html = `
+                <form onsubmit="saveExpense(event, '${expenseId || ''}')" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Expense Date *</label>
+                            <input type="date" id="ef-date" required value="${exp ? exp.date : new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Category *</label>
+                            <select id="ef-category" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="Rent" ${exp && exp.category === 'Rent' ? 'selected' : ''}>Rent</option>
+                                <option value="Electricity" ${exp && exp.category === 'Electricity' ? 'selected' : ''}>Electricity</option>
+                                <option value="Internet" ${exp && exp.category === 'Internet' ? 'selected' : ''}>Internet</option>
+                                <option value="Salary" ${exp && exp.category === 'Salary' ? 'selected' : ''}>Salary</option>
+                                <option value="Maintenance" ${exp && exp.category === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                                <option value="Other" ${exp && exp.category === 'Other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Description *</label>
+                        <input type="text" id="ef-desc" required value="${exp ? exp.description : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Amount (PKR) *</label>
+                            <input type="number" id="ef-amount" required value="${exp ? exp.amount : ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Paid By</label>
+                            <input type="text" id="ef-paidby" value="${exp ? exp.paidBy : 'Admin'}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Expense</button>
+                    </div>
+                </form>
+            `;
+            openModal(exp ? "Edit Expense" : "Record Expense", html);
+        }
+
+        function saveExpense(e, expenseId) {
+            e.preventDefault();
+            pushUndoState("Save Expense Record");
+            const data = {
+                id: expenseId || generateId("EXP", "expenses"),
+                date: document.getElementById("ef-date").value,
+                category: document.getElementById("ef-category").value,
+                description: document.getElementById("ef-desc").value,
+                amount: parseFloat(document.getElementById("ef-amount").value) || 0,
+                paidBy: document.getElementById("ef-paidby").value || "Admin"
+            };
+
+            if (expenseId) {
+                const idx = appState.expenses.findIndex(ex => ex.id === expenseId);
+                if (idx !== -1) appState.expenses[idx] = data;
+            } else {
+                appState.expenses.push(data);
+            }
+
+            saveStorage("Save Expense", `Recorded expense ${data.id} (${formatCurrency(data.amount)})`);
+            closeModal();
+            showToast("Expense logged successfully", "success");
+            renderPage("Expenses");
+        }
+
+        function renderTestsModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Tests & Examination Results</h2>
+                        <p class="text-xs text-slate-500">Record marks, rankings & report cards</p>
+                    </div>
+                    <button onclick="openTestForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition shadow-md shadow-indigo-200 dark:shadow-none">
+                        <i class="fa-solid fa-plus"></i> + Add Test
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Test Title</th>
+                                <th class="py-3.5 px-4">Batch</th>
+                                <th class="py-3.5 px-4">Date</th>
+                                <th class="py-3.5 px-4">Total Marks</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${appState.tests.map(t => {
+                                const batch = appState.batches.find(b => b.id === t.batchId);
+                                return `
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                        <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${t.name}</td>
+                                        <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${batch ? batch.name : '-'}</td>
+                                        <td class="py-3 px-4">${t.date}</td>
+                                        <td class="py-3 px-4 font-semibold">${t.totalMarks}</td>
+                                        <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                                            <button onclick="openEnterMarksModal('${t.id}')" class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[11px] font-medium">Marks</button>
+                                            <button onclick="viewTestResults('${t.id}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-[11px] font-medium">Results</button>
+                                            <button onclick="softDelete('tests', '${t.id}')" class="px-2 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openTestForm() {
+            const html = `
+                <form onsubmit="saveTest(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1">Test Title *</label>
+                        <input type="text" id="tst-name" required placeholder="e.g. Physics Chapter 1 Test" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold mb-1">Batch *</label>
+                            <select id="tst-batch" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                ${appState.batches.map(b => `<option value="${b.id}">${b.name}</option>`).join("")}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Test Date *</label>
+                            <input type="date" id="tst-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Total Marks *</label>
+                            <input type="number" id="tst-marks" required value="50" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Test</button>
+                    </div>
+                </form>
+            `;
+            openModal("Create Test", html);
+        }
+
+        function saveTest(e) {
+            e.preventDefault();
+            pushUndoState("Create Test");
+            const data = {
+                id: generateId("TST", "tests"),
+                name: document.getElementById("tst-name").value,
+                batchId: document.getElementById("tst-batch").value,
+                date: document.getElementById("tst-date").value,
+                totalMarks: parseInt(document.getElementById("tst-marks").value, 10) || 50
+            };
+            appState.tests.push(data);
+            saveStorage("Create Test", `Created test ${data.name}`);
+            closeModal();
+            showToast("Test created successfully", "success");
+            renderPage("Tests");
+        }
+
+        function openEnterMarksModal(testId) {
+            const test = appState.tests.find(t => t.id === testId);
+            if (!test) return;
+            const students = appState.students.filter(s => s.batchId === test.batchId && s.status === "Active");
+
+            const html = `
+                <div class="space-y-4 text-xs">
+                    <p class="text-slate-600">Enter marks for <strong>${test.name}</strong> (Total Marks: ${test.totalMarks})</p>
+                    <div class="space-y-2 max-h-60 overflow-y-auto p-2 border rounded-xl">
+                        ${students.map(s => {
+                            const existing = (appState.marks || []).find(m => m.testId === testId && m.studentId === s.id);
+                            return `
+                                <div class="flex items-center justify-between p-2 border rounded-lg">
+                                    <span class="font-semibold text-slate-800 dark:text-white">${s.name} (${s.id})</span>
+                                    <input type="number" max="${test.totalMarks}" min="0" value="${existing ? existing.obtainedMarks : 0}" class="mark-input text-right w-20 px-2 py-1 border rounded" data-student-id="${s.id}">
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                        <button type="button" onclick="saveTestMarks('${testId}')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">Save Marks</button>
+                    </div>
+                </div>
+            `;
+            openModal("Enter Test Marks", html);
+        }
+
+        function saveTestMarks(testId) {
+            if (!appState.marks) appState.marks = [];
+            pushUndoState("Save Test Marks");
+
+            document.querySelectorAll(".mark-input").forEach(input => {
+                const stuId = input.dataset.studentId;
+                const val = parseFloat(input.value) || 0;
+
+                appState.marks = appState.marks.filter(m => !(m.testId === testId && m.studentId === stuId));
+                appState.marks.push({
+                    testId: testId,
+                    studentId: stuId,
+                    obtainedMarks: val
+                });
+            });
+
+            saveStorage("Save Marks", `Saved result marks for test ${testId}`);
+            closeModal();
+            showToast("Test marks saved", "success");
+        }
+
+        function viewTestResults(testId) {
+            const test = appState.tests.find(t => t.id === testId);
+            if (!test) return;
+            const students = appState.students.filter(s => s.batchId === test.batchId);
+
+            let rankList = students.map(s => {
+                const markObj = (appState.marks || []).find(m => m.testId === testId && m.studentId === s.id);
+                const obtained = markObj ? markObj.obtainedMarks : 0;
+                const pct = ((obtained / test.totalMarks) * 100).toFixed(1);
+                
+                let grade = "F";
+                if (pct >= 80) grade = "A+";
+                else if (pct >= 70) grade = "A";
+                else if (pct >= 60) grade = "B";
+                else if (pct >= 50) grade = "C";
+
+                return { student: s, obtained, pct, grade };
+            });
+
+            rankList.sort((a, b) => b.obtained - a.obtained);
+
+            const html = `
+                <div class="text-center p-2">
+                    <div id="test-result-print" class="p-4 text-left">
+                        <h3 class="font-bold text-base text-slate-800 dark:text-white">${test.name} - Result Sheet</h3>
+                        <p class="text-xs text-slate-500 mb-4">Date: ${test.date} | Total Marks: ${test.totalMarks}</p>
+                        
+                        <table class="w-full text-xs border border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-700">
+                                    <th class="p-2 border text-center">Pos</th>
+                                    <th class="p-2 border">Student</th>
+                                    <th class="p-2 border text-center">Obtained</th>
+                                    <th class="p-2 border text-center">%</th>
+                                    <th class="p-2 border text-center">Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rankList.map((item, idx) => `
+                                    <tr>
+                                        <td class="p-2 border text-center font-bold">${idx + 1}</td>
+                                        <td class="p-2 border font-semibold">${item.student.name}</td>
+                                        <td class="p-2 border text-center font-bold">${item.obtained}</td>
+                                        <td class="p-2 border text-center">${item.pct}%</td>
+                                        <td class="p-2 border text-center font-bold ${item.grade === 'F' ? 'text-rose-600' : 'text-emerald-600'}">${item.grade}</td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="printDiv('test-result-print')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-medium">Print Result Sheet</button>
+                </div>
+            `;
+            openModal("Test Ranking Sheet", html);
+        }
+
+        function renderTimetableModule() {
+            const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Academy Timetable Grid</h2>
+                        <p class="text-xs text-slate-500">Weekly batch class distribution</p>
+                    </div>
+                    <button onclick="printDiv('timetable-grid')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-medium">Print Timetable</button>
+                </div>
+
+                <div id="timetable-grid" class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-x-auto">
+                    <div class="grid grid-cols-7 gap-3 min-w-[700px]">
+                        ${days.map(d => {
+                            const dayBatches = appState.batches.filter(b => b.days.includes(d) || b.days.includes("Mon to Sat"));
+                            return `
+                                <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                                    <h4 class="font-bold text-center text-xs uppercase text-indigo-600 mb-3">${d}</h4>
+                                    <div class="space-y-2">
+                                        ${dayBatches.map(b => {
+                                            const teacher = appState.teachers.find(t => t.id === b.teacherId);
+                                            return `
+                                                <div class="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xs text-[11px]">
+                                                    <p class="font-bold text-slate-800 dark:text-white truncate">${b.name}</p>
+                                                    <p class="text-[10px] text-indigo-500">${b.time}</p>
+                                                    <p class="text-[10px] text-slate-400 mt-1">${teacher ? teacher.name : ''}</p>
+                                                </div>
+                                            `;
+                                        }).join("")}
+                                    </div>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSalaryModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Staff Payroll & Salary Sheet</h2>
+                        <p class="text-xs text-slate-500">Manage monthly disbursements & salary slips</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Teacher</th>
+                                <th class="py-3.5 px-4">Base Salary</th>
+                                <th class="py-3.5 px-4">Advance/Deductions</th>
+                                <th class="py-3.5 px-4">Net Salary</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${appState.teachers.map(t => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                    <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${t.name}</td>
+                                    <td class="py-3 px-4">${formatCurrency(t.salary)}</td>
+                                    <td class="py-3 px-4 text-slate-400">PKR 0</td>
+                                    <td class="py-3 px-4 font-bold text-emerald-600">${formatCurrency(t.salary)}</td>
+                                    <td class="py-3 px-4 text-right space-x-1">
+                                        <button onclick="markSalaryPaid('${t.id}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-[11px] font-medium">Mark Paid</button>
+                                        <button onclick="printSalarySlip('${t.id}')" class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[11px] font-medium">Salary Slip</button>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function markSalaryPaid(teacherId) {
+            const teacher = appState.teachers.find(t => t.id === teacherId);
+            if (!teacher) return;
+
+            pushUndoState("Pay Teacher Salary");
+
+            // Create Expense record automatically
+            appState.expenses.push({
+                id: generateId("EXP", "expenses"),
+                date: new Date().toISOString().split("T")[0],
+                category: "Salary",
+                description: `Monthly Salary Payment to ${teacher.name}`,
+                amount: teacher.salary,
+                paidBy: "Admin"
+            });
+
+            saveStorage("Salary Paid", `Paid salary ${formatCurrency(teacher.salary)} to ${teacher.name}`);
+            showToast(`Paid salary recorded as expense for ${teacher.name}`, "success");
+        }
+
+        function printSalarySlip(teacherId) {
+            const teacher = appState.teachers.find(t => t.id === teacherId);
+            if (!teacher) return;
+
+            const html = `
+                <div class="text-center p-4">
+                    <div id="salary-slip-print" class="w-[450px] bg-white text-slate-800 p-6 rounded-xl border shadow-xl mx-auto text-left space-y-4">
+                        <div class="border-b pb-3">
+                            <h2 class="text-base font-bold text-indigo-900">${appState.settings.academyName}</h2>
+                            <p class="text-[10px] text-slate-500">MONTHLY SALARY DISBURSEMENT SLIP</p>
+                        </div>
+                        <div class="text-xs space-y-1">
+                            <p><strong>Employee Name:</strong> ${teacher.name}</p>
+                            <p><strong>Subject / Designation:</strong> ${teacher.subject}</p>
+                            <p><strong>Pay Period:</strong> ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                        </div>
+                        <table class="w-full text-xs border border-collapse">
+                            <tr class="bg-slate-100">
+                                <th class="p-2 border text-left">Description</th>
+                                <th class="p-2 border text-right">Amount</th>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border">Base Salary</td>
+                                <td class="p-2 border text-right">${formatCurrency(teacher.salary)}</td>
+                            </tr>
+                            <tr class="bg-slate-50 font-bold">
+                                <td class="p-2 border">Net Amount Payable</td>
+                                <td class="p-2 border text-right text-emerald-600">${formatCurrency(teacher.salary)}</td>
+                            </tr>
+                        </table>
+                        <div class="pt-8 flex justify-between text-[11px] text-slate-400">
+                            <div>Employee Signature</div>
+                            <div>Director Signature</div>
+                        </div>
+                    </div>
+                    <button onclick="printDiv('salary-slip-print')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-medium">Print Salary Slip</button>
+                </div>
+            `;
+            openModal("Salary Slip", html);
+        }
+
+        function renderWhatsAppModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">WhatsApp Direct Marketing & Alerts</h2>
+                        <p class="text-xs text-slate-500">Send direct notice reminders and broadcasts</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Template Composer -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-4 text-xs">
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-2">Message Composer</h3>
+                        
+                        <div>
+                            <label class="block font-semibold mb-1">Select Preset Template</label>
+                            <select id="wa-template-select" onchange="applyWATemplate(this.value)" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="">Custom Message</option>
+                                <option value="fee">Fee Overdue Reminder</option>
+                                <option value="absence">Student Absence Notice</option>
+                                <option value="announcement">General Announcement</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold mb-1">Message Text (Placeholders: {student}, {amount}, {month})</label>
+                            <textarea id="wa-msg-text" rows="5" class="w-full p-3 border rounded-xl dark:bg-slate-900 dark:border-slate-700">Dear Parent, this is an official notice regarding student {student}.</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold mb-1">Target Audience</label>
+                            <select id="wa-target-select" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                                <option value="all">All Active Students</option>
+                                <option value="overdue">Overdue Fee Accounts Only</option>
+                            </select>
+                        </div>
+
+                        <button onclick="startWhatsAppBroadcast()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> Launch WhatsApp Queue
+                        </button>
+                    </div>
+
+                    <!-- Queue Preview -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm text-xs">
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-4">Outbound Broadcast Queue</h3>
+                        <div id="wa-queue-list" class="space-y-2 max-h-80 overflow-y-auto">
+                            <p class="text-slate-400 text-center py-8">Select criteria and launch broadcast queue</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyWATemplate(type) {
+            const txtArea = document.getElementById("wa-msg-text");
+            if (type === "fee") {
+                txtArea.value = `Dear Parent, this is a friendly reminder from ${appState.settings.academyName} that fee for {student} is due. Please submit at your earliest convenience.`;
+            } else if (type === "absence") {
+                txtArea.value = `Dear Parent, your child {student} was absent from class today at ${appState.settings.academyName}. Kindly inform us of the reason.`;
+            } else if (type === "announcement") {
+                txtArea.value = `Dear Parents and Students, please note that ${appState.settings.academyName} will remain closed on upcoming official holiday. Regular classes resume thereafter.`;
+            }
+        }
+
+        function startWhatsAppBroadcast() {
+            const textTemplate = document.getElementById("wa-msg-text").value;
+            const target = document.getElementById("wa-target-select").value;
+            const container = document.getElementById("wa-queue-list");
+
+            let targetStudents = appState.students.filter(s => s.status === "Active");
+            if (target === "overdue") {
+                const todayStr = new Date().toISOString().split("T")[0];
+                const overdueIds = appState.fees.filter(f => (f.amount - f.paidAmount) > 0 && f.dueDate < todayStr).map(f => f.studentId);
+                targetStudents = targetStudents.filter(s => overdueIds.includes(s.id));
+            }
+
+            if (targetStudents.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-4">No recipients matching target criteria</p>`;
+                return;
+            }
+
+            container.innerHTML = targetStudents.map(s => {
+                const finalMsg = encodeURIComponent(textTemplate.replace("{student}", s.name));
+                return `
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border dark:border-slate-700">
+                        <div>
+                            <p class="font-bold text-slate-800 dark:text-white">${s.name}</p>
+                            <p class="text-[10px] text-slate-400">${s.phone}</p>
+                        </div>
+                        <a href="https://wa.me/${s.phone}?text=${finalMsg}" target="_blank" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-semibold text-[11px] flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> Send
+                        </a>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderActivityLogModule() {
+            const logs = appState.activityLogs || [];
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">System Activity Audit Log</h2>
+                        <p class="text-xs text-slate-500">Track all administrative modifications</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Timestamp</th>
+                                <th class="py-3.5 px-4">User</th>
+                                <th class="py-3.5 px-4">Action</th>
+                                <th class="py-3.5 px-4">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${logs.map(l => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                    <td class="py-3 px-4 text-slate-400">${new Date(l.timestamp).toLocaleString()}</td>
+                                    <td class="py-3 px-4 font-semibold text-indigo-600">${l.user}</td>
+                                    <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${l.action}</td>
+                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${l.details}</td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderRecycleBinModule() {
+            const bin = appState.recycleBin || [];
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Recycle Bin</h2>
+                        <p class="text-xs text-slate-500">Restore or permanently wipe soft-deleted records</p>
+                    </div>
+                    ${bin.length > 0 ? `
+                        <button onclick="emptyRecycleBin()" class="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-medium">Empty Bin</button>
+                    ` : ''}
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                <th class="py-3.5 px-4">Deleted Date</th>
+                                <th class="py-3.5 px-4">Collection</th>
+                                <th class="py-3.5 px-4">Record Item ID</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                            ${bin.length === 0 ? `<tr><td colspan="4" class="text-center py-6 text-slate-400">Recycle Bin is empty</td></tr>` : 
+                            bin.map((item, idx) => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                    <td class="py-3 px-4 text-slate-400">${new Date(item.deletedAt).toLocaleString()}</td>
+                                    <td class="py-3 px-4 uppercase font-bold text-indigo-600">${item.originalCollection}</td>
+                                    <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${item.item.id || item.item.name || 'Record'}</td>
+                                    <td class="py-3 px-4 text-right space-x-1">
+                                        <button onclick="restoreRecycleBinItem(${idx})" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-[11px]">Restore</button>
+                                        <button onclick="permanentlyDeleteBinItem(${idx})" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-[11px]">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function restoreRecycleBinItem(index) {
+            const target = appState.recycleBin[index];
+            if (!target) return;
+
+            pushUndoState("Restore Deleted Record");
+            appState[target.originalCollection].push(target.item);
+            appState.recycleBin.splice(index, 1);
+            saveStorage("Restore Item", `Restored item ${target.item.id || ''}`);
+            showToast("Record restored", "success");
+            renderPage("RecycleBin");
+        }
+
+        function permanentlyDeleteBinItem(index) {
+            appState.recycleBin.splice(index, 1);
+            saveStorage("Permanent Delete", "Permanently removed record");
+            showToast("Record permanently wiped", "info");
+            renderPage("RecycleBin");
+        }
+
+        function emptyRecycleBin() {
+            appState.recycleBin = [];
+            saveStorage("Empty Recycle Bin", "Wiped all items in recycle bin");
+            showToast("Recycle bin cleared", "info");
+            renderPage("RecycleBin");
+        }
+
+        function renderSettingsModule() {
+            const set = appState.settings || {};
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Academy Settings</h2>
+                        <p class="text-xs text-slate-500">System configuration & branding</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm max-w-2xl space-y-4 text-xs">
+                    <form onsubmit="saveSettings(event)" class="space-y-4">
+                        <div>
+                            <label class="block font-semibold mb-1">Academy Name *</label>
+                            <input type="text" id="set-name" required value="${set.academyName || ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-semibold mb-1">Contact Phone</label>
+                                <input type="text" id="set-phone" value="${set.phone || ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">Currency Code</label>
+                                <input type="text" id="set-currency" value="${set.currency || 'PKR'}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Campus Address</label>
+                            <input type="text" id="set-address" value="${set.address || ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-semibold mb-1">System Security PIN Code</label>
+                                <input type="password" id="set-pin" maxlength="6" value="${set.pin || '1234'}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">Default Fee Due Day of Month</label>
+                                <input type="number" id="set-dueday" min="1" max="28" value="${set.dueDay || 10}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Receipt Footer Note</label>
+                            <input type="text" id="set-footer" value="${set.receiptFooter || ''}" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                        </div>
+                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold">Save Academy Settings</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function saveSettings(e) {
+            e.preventDefault();
+            appState.settings = {
+                ...appState.settings,
+                academyName: document.getElementById("set-name").value,
+                phone: document.getElementById("set-phone").value,
+                currency: document.getElementById("set-currency").value,
+                address: document.getElementById("set-address").value,
+                pin: document.getElementById("set-pin").value,
+                dueDay: parseInt(document.getElementById("set-dueday").value, 10) || 10,
+                receiptFooter: document.getElementById("set-footer").value
+            };
+            saveStorage("Update Settings", "Saved academy system configuration");
+            renderSidebar();
+            showToast("Settings updated successfully", "success");
+        }
+
+        function renderBackupModule() {
+            return `
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Backup & Database Restore</h2>
+                        <p class="text-xs text-slate-500">Manage database backups & local file downloads</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-3">
+                        <i class="fa-solid fa-download text-2xl text-indigo-600"></i>
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white">Export Database</h3>
+                        <p class="text-xs text-slate-500">Download a complete JSON snapshot of all records to safe storage.</p>
+                        <button onclick="downloadBackupJSON()" class="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold">Export Backup JSON</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-3">
+                        <i class="fa-solid fa-upload text-2xl text-emerald-600"></i>
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white">Restore Database</h3>
+                        <p class="text-xs text-slate-500">Import a previously saved JSON database backup file into the browser.</p>
+                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importBackupJSON(event)">
+                        <button onclick="document.getElementById('import-file').click()" class="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold">Restore JSON File</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-3">
+                        <i class="fa-solid fa-rotate-right text-2xl text-rose-600"></i>
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white">Reset Demo Data</h3>
+                        <p class="text-xs text-slate-500">Wipe current state and reload initial factory default Pakistani sample data.</p>
+                        <button onclick="resetFactoryDemoData()" class="w-full py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold">Reset Demo Data</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function downloadBackupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Academy_OS_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            showToast("Backup file downloaded", "success");
+        }
+
+        function importBackupJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    appState = parsed;
+                    saveStorage("Import Backup", "Restored database from external JSON file");
+                    showToast("Database restored successfully", "success");
+                    renderPage(activeModule);
+                } catch (err) {
+                    showToast("Invalid JSON file format", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetFactoryDemoData() {
+            if (confirm("Are you sure you want to reset all records to default demo data?")) {
+                appState = JSON.parse(JSON.stringify(defaultData));
+                saveStorage("Reset Demo Data", "Factory reset system database");
+                showToast("Demo data reloaded", "info");
+                renderPage(activeModule);
+            }
+        }
+
+        function exportCSV(type) {
+            let data = [];
+            if (type === 'students') data = appState.students;
+            if (data.length === 0) return;
+
+            const headers = Object.keys(data[0]).join(",");
+            const rows = data.map(obj => Object.values(obj).map(v => `"${v}"`).join(","));
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${type}_report.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        // Master Page Router
+        function renderPage(moduleId) {
+            const content = document.getElementById("page-content");
+            if (moduleId === "Dashboard") content.innerHTML = renderDashboard();
+            else if (moduleId === "Students") content.innerHTML = renderStudentsModule();
+            else if (moduleId === "Teachers") content.innerHTML = renderTeachersModule();
+            else if (moduleId === "Courses") content.innerHTML = renderCoursesModule();
+            else if (moduleId === "Batches") content.innerHTML = renderBatchesModule();
+            else if (moduleId === "Fees") content.innerHTML = renderFeesModule();
+            else if (moduleId === "Attendance") content.innerHTML = renderAttendanceModule();
+            else if (moduleId === "Expenses") content.innerHTML = renderExpensesModule();
+            else if (moduleId === "Tests") content.innerHTML = renderTestsModule();
+            else if (moduleId === "Timetable") content.innerHTML = renderTimetableModule();
+            else if (moduleId === "Salary") content.innerHTML = renderSalaryModule();
+            else if (moduleId === "WhatsApp") content.innerHTML = renderWhatsAppModule();
+            else if (moduleId === "ActivityLog") content.innerHTML = renderActivityLogModule();
+            else if (moduleId === "RecycleBin") content.innerHTML = renderRecycleBinModule();
+            else if (moduleId === "Settings") content.innerHTML = renderSettingsModule();
+            else if (moduleId === "Backup") content.innerHTML = renderBackupModule();
+            else content.innerHTML = `<h2 class="text-xl font-bold">Module Under Construction</h2>`;
+        }
+
+        // Initialize Application on Window Load
+        window.onload = function() {
+            initStorage();
+            renderSidebar();
+            renderPage("Dashboard");
+        };
+    </script>
+</body>
+</html>
